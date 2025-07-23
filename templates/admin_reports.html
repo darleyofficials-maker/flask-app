@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Admin Reports</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='HOMEPAGE.css') }}">
+</head>
+<body>
+  <header>
+    <h1>📊 Weekly Reports</h1>
+    <nav>
+      <ul class="nav-links">
+        <li><a href="/admin">⬅ Back to Admin</a></li>
+        <li><a href="/logout">Logout</a></li>
+      </ul>
+    </nav>
+  </header>
+
+  <main class="page-section active">
+    <section>
+      <h2>🗓️ Orders Summary (Last 7 Days)</h2>
+      <table>
+        <tr><th>Date</th><th>Orders</th><th>Total Revenue (KES)</th></tr>
+        {% for row in weekly %}
+        <tr>
+          <td>{{ row[0] }}</td>
+          <td>{{ row[1] }}</td>
+          <td>{{ row[2] if row[2] else 0 }}</td>
+        </tr>
+        {% endfor %}
+      </table>
+    </section>
+
+    <section>
+      <h2>🔥 Top Products This Week</h2>
+      <ul>
+        {% for product in top %}
+        <li>{{ product[0] }} – {{ product[1] }} orders</li>
+        {% endfor %}
+      </ul>
+    </section>
+  </main>
+
+  <footer>
+    <p>&copy; 2025 Vikkie's Admin Report Panel</p>
+  </footer>
+</body>
+</html>

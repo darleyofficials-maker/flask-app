@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Register - Vikkie's Online Shop</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='HOMEPAGE.css') }}">
+</head>
+<body>
+  <h1>Vikkie's Online Shop</h1>
+  <h2>Create an Account</h2>
+
+  <form method="POST" action="/register">
+    <label for="name">Full Name:</label>
+    <input type="text" id="name" name="name" required>
+
+    <label for="email">Email Address:</label>
+    <input type="email" id="email" name="email" required>
+
+    <label for="phone">Phone Number:</label>
+    <input type="text" id="phone" name="phone" required>
+
+    <label for="password">Create Password:</label>
+    <input type="password" id="password" name="password" required>
+
+    <button type="submit">Register</button>
+
+    {% if message %}
+      <p>{{ message }}</p>
+    {% endif %}
+  </form>
+
+  <p>Already have an account? <a href="/login">Login here</a></p>
+</body>
+</html>
