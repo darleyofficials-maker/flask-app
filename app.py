@@ -139,5 +139,9 @@ def delete_product():
     return redirect('/admin')
 
 # 🏁 Main
-if __name__ == '__main__':
-    app.run(debug=True)
+@app.route('/')
+def home():
+    return "hello from flask on Render"
+
+if __name__ == "__main__":
+    app.run()
