@@ -140,7 +140,7 @@ def delete_product():
 # 🏁 Main
 @app.route('/')
 def home():
-    return "hello from flask on Render"
+    return render_template("homepage.html")
 
 if __name__ == "__main__":
     app.run()
