@@ -1,0 +1,609 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Vikkie's Online Shop</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='HOMEPAGE.css') }}">
+</head>
+<body>
+  <header class="page-section" id="top">
+    <h1>Welcome to Vikkie’s Online Shop</h1>
+    <p style="font-size: 1.1em; color: #555; animation: fadeIn 1.5s ease;">
+      Discover a world of trusted products, unbeatable flash deals, exciting rewards, and easy shopping — all in one place.
+      At Vikkie’s Online Shop, your satisfaction is our style. Whether you're browsing by category, reviewing your wishlist,
+      or earning loyalty points, you'll love every second here.
+    </p>
+  </header>
+  
+  <h1>Welcome to Vikkie's Online Shop</h1>
+  <p style="max-width: 800px;">
+    Welcome to <strong>Vikkie’s Online Shop</strong> — your one-stop destination for quality, convenience, and unbeatable variety! Whether you're here to upgrade your tech, refresh your wardrobe, stock your kitchen, or find that perfect gift, you're in the right place.  
+  </p>
+  
+  <p style="max-width: 800px;">
+    We believe shopping should be easy, fun, and rewarding — so we’ve packed our shop with amazing products, flash deals, loyalty rewards, and a seamless checkout experience. Every item is carefully listed, every customer valued, and every visit made to feel like home.
+  </p>
+  
+  <p style="max-width: 800px;">
+    💖 Love what you see? Add it to your wishlist.  
+    💬 Got feedback? We’re listening.  
+    🎁 Shopping for someone? Send them a referral and earn rewards.  
+  </p>
+  
+  <p style="max-width: 800px;">
+    From Nairobi to the world — welcome to shopping, the Vikkie’s way.  
+    You’re not just a customer here. You’re family. 🛍️✨
+  </p>
+
+<!-- HOME -->
+<section id="home" class="page-section">
+  <h2>Welcome to Vikkie's Online Shop</h2>
+  <p>Discover quality electronics, fashion, books, and much more — delivered fast.</p>
+</section>
+
+<!-- SHOP -->
+<section id="shop" class="page-section">
+  <h2>Shop by Category</h2>
+
+  <form method="GET" action="/filter">
+    <label>Category:
+      <select name="category">
+        <option value="">All</option>
+        {% for category in categories %}
+          <option value="{{ category }}">{{ category }}</option>
+        {% endfor %}
+      </select>
+    </label>
+    <label>Min Price: <input type="number" name="min_price"></label>
+    <label>Max Price: <input type="number" name="max_price"></label>
+    <button type="submit">Filter</button>
+  </form>
+
+  {% for category, items in filtered_products.items() %}
+    <h3>{{ category }}</h3>
+    {% for product in items %}
+      <div class="product">
+        <h4>{{ product.name }}</h4>
+        <p>{{ product.description }}</p>
+        <p>Price: {{ product.price }}</p>
+        <form method="POST" action="/add-to-cart">
+          <input type="hidden" name="product_id" value="{{ product.id }}">
+          <button type="submit">Add to Cart</button>
+        </form>
+        <form method="POST" action="/wishlist">
+          <input type="hidden" name="product_id" value="{{ product.id }}">
+          <button type="submit">💖 Wishlist</button>
+        </form>
+      </div>
+      <section class="page-section" id="products">
+        <h2>🛍️ Explore Products by Category</h2>
+      
+        {% for category, items in categories.items() %}
+          <h3>{{ category }}</h3>
+          <div style="display: flex; flex-wrap: wrap; gap: 20px; margin-bottom: 30px;">
+            {% for p in items %}
+              <div style="flex: 1 1 200px; border: 1px solid #ddd; border-radius: 8px; padding: 15px;">
+                <h4>{{ p['name'] }}</h4>
+                <p>Price: KES {{ p['price'] }}</p>
+                <p class="flash-countdown" data-end="{{ p['flash_end'] }}">Loading countdown...</p>
+      
+                <form method="POST" action="/add-to-cart">
+                  <input type="hidden" name="product_id" value="{{ p['id'] }}">
+                  <button type="submit">🛒 Add to Cart</button>
+                </form>
+      
+                <form method="POST" action="/wishlist">
+                  <input type="hidden" name="product_id" value="{{ p['id'] }}">
+                  <button type="submit" class="wishlist-btn">🤍 Add to Wishlist</button>
+                </form>
+              </div>
+            {% endfor %}
+          </div>
+        {% endfor %}
+      </section>
+      
+    {% endfor %}
+  {% endfor %}
+</section>
+
+<!-- WISHLIST -->
+<section id="wishlist" class="page-section">
+  <h2>Your Wishlist</h2>
+  {% if wishlist %}
+    <ul>
+      {% for item in wishlist %}
+        <li>
+          {{ item.name }} - {{ item.price }}
+          <form method="POST" action="/remove-wishlist">
+            <input type="hidden" name="product_id" value="{{ item.id }}">
+            <button type="submit">Remove</button>
+          </form>
+        </li>
+      {% endfor %}
+    </ul>
+  {% else %}
+    <p>Your wishlist is empty.</p>
+    <section class="page-section" id="wishlist">
+      <h2>❤️ Your Wishlist</h2>
+      {% if wishlist %}
+        <ul>
+          {% for item in wishlist %}
+            <li>
+              {{ item['name'] }} — KES {{ item['price'] }}
+              <form method="POST" action="/remove-from-wishlist" style="display:inline;">
+                <input type="hidden" name="product_id" value="{{ item['id'] }}">
+                <button type="submit">❌ Remove</button>
+              </form>
+            </li>
+          {% endfor %}
+        </ul>
+      {% else %}
+        <p>Your wishlist is empty.</p>
+      {% endif %}
+    </section>
+    
+    <section class="page-section" id="orders">
+      <h2>📦 Your Orders</h2>
+      {% if user_orders %}
+        <table>
+          <tr><th>ID</th><th>Date</th><th>Total</th><th>Status</th></tr>
+          {% for o in user_orders %}
+            <tr>
+              <td>{{ o['id'] }}</td>
+              <td>{{ o['date'] }}</td>
+              <td>KES {{ o['total'] }}</td>
+              <td>{{ o['status'] }}</td>
+            </tr>
+          {% endfor %}
+        </table>
+      {% else %}
+        <p>No orders placed yet.</p>
+      {% endif %}
+    </section>
+    
+    <section class="page-section" id="referral">
+      <h2>👥 Invite & Earn</h2>
+      <p>Share your referral link with friends and earn points when they place their first order!</p>
+      <input type="text" readonly value="{{ referral_link }}" onclick="this.select();">
+      <p>You've earned <strong>{{ user_points }}</strong> points so far.</p>
+    </section>
+    
+  {% endif %}
+</section>
+<!-- CART -->
+<section id="cart" class="page-section">
+  <h2>Your Cart</h2>
+  {% if cart_items %}
+    <table border="1">
+      <tr><th>Product</th><th>Qty</th><th>Price</th><th>Total</th><th>Action</th></tr>
+      {% for item in cart_items %}
+      <tr>
+        <td>{{ item.name }}</td>
+        <td>{{ item.quantity }}</td>
+        <td>{{ item.price }}</td>
+        <td>{{ item.total }}</td>
+        <td>
+          <form method="POST" action="/remove-from-cart">
+            <input type="hidden" name="product_id" value="{{ item.id }}">
+            <button type="submit">Remove</button>
+          </form>
+        </td>
+      </tr>
+      {% endfor %}
+    </table>
+    <p><strong>Grand Total:</strong> {{ grand_total }}</p>
+  {% else %}
+    <p>Your cart is empty.</p>
+    <section class="page-section" id="cart">
+      <h2>🛒 Your Cart</h2>
+    
+      {% if cart_items %}
+        <table>
+          <tr><th>Product</th><th>Qty</th><th>Price</th><th>Total</th><th>Remove</th></tr>
+          {% for item in cart_items %}
+            <tr>
+              <td>{{ item['name'] }}</td>
+              <td>{{ item['quantity'] }}</td>
+              <td>KES {{ item['price'] }}</td>
+              <td>KES {{ item['quantity'] * item['price'] }}</td>
+              <td>
+                <form method="POST" action="/remove-from-cart">
+                  <input type="hidden" name="product_id" value="{{ item['id'] }}">
+                  <button type="submit">❌</button>
+                </form>
+              </td>
+            </tr>
+          {% endfor %}
+        </table>
+    
+        <p><strong>Subtotal:</strong> KES {{ cart_total }}</p>
+    
+        <form method="POST" action="/convert-points">
+          <label>🎁 Convert loyalty points:</label>
+          <input type="number" name="points_to_convert" min="0" max="{{ user_points }}">
+          <button type="submit">Apply Discount</button>
+        </form>
+    
+        <form method="POST" action="/checkout">
+          <h3>Checkout</h3>
+          <input type="text" name="address" placeholder="Delivery Address" required>
+          <input type="text" name="phone" placeholder="Phone Number" required>
+          <button type="submit">✅ Place Order</button>
+        </form>
+    
+      {% else %}
+        <p>Your cart is empty.</p>
+      {% endif %}
+    </section>
+    
+  {% endif %}
+</section>
+
+<!-- CHECKOUT -->
+<section id="checkout" class="page-section">
+  <h2>Checkout</h2>
+  <form method="POST" action="/place-order">
+    <label>Full Name: <input type="text" name="name" required></label><br>
+    <label>Phone Number: <input type="text" name="phone" required></label><br>
+    <label>Delivery Address: <input type="text" name="address" required></label><br>
+
+    <h3>Select Payment Method</h3>
+    <label><input type="radio" name="payment_method" value="mpesa"> M-Pesa</label><br>
+    <label><input type="radio" name="payment_method" value="card"> Debit/Credit Card</label><br>
+    <label><input type="radio" name="payment_method" value="cod"> Cash on Delivery</label><br>
+
+    <button type="submit">Place Order</button>
+  </form>
+</section>
+
+<!-- ORDER TRACKING -->
+<section id="track-order" class="page-section">
+  <h2>Track Your Order</h2>
+  <form method="GET" action="/track-order">
+    <label>Enter Order ID: <input type="text" name="order_id" required></label>
+    <button type="submit">Track</button>
+  </form>
+  {% if tracking_status %}
+    <p>Status: {{ tracking_status }}</p>
+  {% endif %}
+</section>
+
+<!-- INVOICE PREVIEW -->
+<section id="invoice" class="page-section">
+  <h2>Invoice Preview</h2>
+  {% if invoice %}
+    <p>Order ID: {{ invoice.id }}</p>
+    <p>Customer: {{ invoice.name }}</p>
+    <p>Items:</p>
+    <ul>
+      {% for item in invoice.items %}
+        <li>{{ item.name }} x{{ item.quantity }} - {{ item.total }}</li>
+      {% endfor %}
+    </ul>
+    <p><strong>Total:</strong> {{ invoice.total }}</p>
+    <form method="GET" action="/print-invoice">
+      <input type="hidden" name="order_id" value="{{ invoice.id }}">
+      <button type="submit">Print Invoice</button>
+    </form>
+  {% else %}
+    <p>No invoice available.</p>
+  {% endif %}
+</section>
+<!-- USER DASHBOARD -->
+<section id="dashboard" class="page-section">
+  <h2>User Dashboard</h2>
+  <p>Welcome back, {{ user.name }}!</p>
+  <p>Last Login: {{ user.last_login }}</p>
+  <p>Loyalty Points: {{ user.points }}</p>
+
+  <!-- LOYALTY CONVERTER -->
+<section id="convert-points" class="page-section">
+  <h3>🎁 Convert Points to Discount</h3>
+  <p>You have <strong>{{ user.points }}</strong> points.</p>
+  <form method="POST" action="/convert-points">
+    <label>How many points do you want to convert?</label><br>
+    <input type="number" name="points_to_convert" min="1" max="{{ user.points }}" required>
+    <p>(1 point = KES {{ conversion_rate }})</p>
+    <button type="submit">Convert</button>
+  </form>
+  {% if discount_applied %}
+    <p>You received a discount of <strong>KES {{ discount_applied }}</strong> on your next order!</p>
+  {% endif %}
+</section>
+
+</section>
+
+
+<!-- PROFILE SETTINGS -->
+<section id="settings" class="page-section">
+  <h2>Profile Settings</h2>
+  <form method="POST" action="/update-profile">
+    <label>Full Name: <input type="text" name="name" value="{{ user.name }}"></label><br>
+    <label>Email: <input type="email" name="email" value="{{ user.email }}"></label><br>
+    <label>Phone: <input type="text" name="phone" value="{{ user.phone }}"></label><br>
+    <label>New Password: <input type="password" name="password"></label><br>
+    <button type="submit">Update</button>
+  </form>
+</section>
+
+<!-- ORDER HISTORY -->
+<section id="order-history" class="page-section">
+  <h2>Your Order History</h2>
+  {% if orders %}
+    <table border="1">
+      <tr><th>Order ID</th><th>Date</th><th>Status</th><th>Total</th></tr>
+      {% for order in orders %}
+        <tr>
+          <td>{{ order.id }}</td>
+          <td>{{ order.date }}</td>
+          <td>{{ order.status }}</td>
+          <td>{{ order.total }}</td>
+        </tr>
+      {% endfor %}
+    </table>
+  {% else %}
+    <p>No orders yet.</p>
+  {% endif %}
+</section>
+
+<!-- RECENTLY VIEWED -->
+<section id="recently-viewed" class="page-section">
+  <h2>Recently Viewed Products</h2>
+  {% if recent_products %}
+    <ul>
+      {% for p in recent_products %}
+        <li>{{ p.name }} - {{ p.price }}</li>
+      {% endfor %}
+    </ul>
+  {% else %}
+    <p>You haven’t viewed any products recently.</p>
+  {% endif %}
+</section>
+
+<!-- RECOMMENDED -->
+<section id="recommendations" class="page-section">
+  <h2>Recommended for You</h2>
+  {% if recommendations %}
+    <ul>
+      {% for r in recommendations %}
+        <li>{{ r.name }} - {{ r.price }}</li>
+      {% endfor %}
+    </ul>
+  {% else %}
+    <p>No recommendations yet. Browse products to get started!</p>
+  {% endif %}
+</section>
+<!-- REVIEWS -->
+<section id="reviews" class="page-section">
+  <h2>Product Reviews</h2>
+  <form method="POST" action="/submit-review">
+    <label>Rating:
+      <select name="rating">
+        <option value="5">5 - Excellent</option>
+        <option value="4">4 - Good</option>
+        <option value="3">3 - Average</option>
+        <option value="2">2 - Poor</option>
+        <option value="1">1 - Terrible</option>
+      </select>
+    </label><br>
+    <label>Comment: <textarea name="comment" required></textarea></label><br>
+    <button type="submit">Submit Review</button>
+  </form>
+  <ul>
+    {% for review in reviews %}
+      <li>{{ review.rating }}★ - {{ review.comment }} ({{ review.user }})</li>
+    {% endfor %}
+  </ul>
+  <section class="page-section" id="reviews">
+    <h2>📝 Product Reviews</h2>
+  
+    {% if reviews %}
+      <table>
+        <tr><th>User</th><th>Product</th><th>Rating</th><th>Comment</th></tr>
+        {% for r in reviews %}
+          <tr>
+            <td>{{ r['user'] }}</td>
+            <td>{{ r['product'] }}</td>
+            <td>{{ r['rating'] }} ⭐</td>
+            <td>{{ r['comment'] }}</td>
+          </tr>
+        {% endfor %}
+      </table>
+    {% else %}
+      <p>No reviews submitted yet.</p>
+    {% endif %}
+  
+    <form method="POST" action="/submit-review">
+      <h3>Leave a Review</h3>
+      <select name="product_id" required>
+        {% for p in all_products %}
+          <option value="{{ p['id'] }}">{{ p['name'] }}</option>
+        {% endfor %}
+      </select>
+      <input type="number" name="rating" min="1" max="5" placeholder="Rating (1–5)" required>
+      <textarea name="comment" placeholder="Your thoughts..." required></textarea>
+      <button type="submit">Submit Review</button>
+    </form>
+  </section>
+  
+  <section class="page-section" id="notifications">
+    <h2>📢 Announcements</h2>
+    <ul>
+      {% for note in messages %}
+        <li>{{ note }}</li>
+      {% endfor %}
+    </ul>
+  </section>
+  
+  <section class="page-section" id="newsletter">
+    <h2>📬 Subscribe to Our Newsletter</h2>
+    <form method="POST" action="/subscribe">
+      <input type="email" name="email" placeholder="Enter your email..." required>
+      <button type="submit">Subscribe</button>
+    </form>
+  </section>
+  
+</section>
+
+<!-- FLASH SALE -->
+<section id="flash-sale" class="page-section">
+  <h2>🔥 Flash Sale</h2>
+  {% if flash_sales %}
+    {% for deal in flash_sales %}
+      <p>{{ deal.name }} — KES {{ deal.price }} <br>(Ends in: {{ deal.ends_in }})</p>
+    {% endfor %}
+  {% else %}
+    <p>No flash sales currently.</p>
+  {% endif %}
+</section>
+
+<!-- STOCK ALERTS -->
+<section id="stock-alerts" class="page-section">
+  <h2>⚠️ Low Stock Alerts</h2>
+  {% for alert in stock_alerts %}
+    <p>{{ alert.product_name }} is almost out of stock!</p>
+  {% endfor %}
+</section>
+
+<!-- REFERRAL -->
+<section id="referrals" class="page-section">
+  <h2>Refer & Earn</h2>
+  <p>Invite friends and earn rewards.</p>
+  <p>Your Referral Link: <strong>{{ referral_link }}</strong></p>
+</section>
+
+<!-- NEWSLETTER -->
+<section id="newsletter" class="page-section">
+  <h2>📬 Subscribe to Our Newsletter</h2>
+  <form method="POST" action="/subscribe">
+    <label>Email: <input type="email" name="email" required></label>
+    <button type="submit">Subscribe</button>
+  </form>
+</section>
+
+<!-- FAQ / HELP -->
+<section id="faq" class="page-section">
+  <h2>❓ Frequently Asked Questions</h2>
+  <p><strong>Q:</strong> How do I place an order?<br><strong>A:</strong> Add items to your cart and checkout.</p>
+  <p><strong>Q:</strong> What payment methods are supported?<br><strong>A:</strong> M-Pesa, card, and cash on delivery.</p>
+  <p><strong>Q:</strong> How do I contact support?<br><strong>A:</strong> Use the contact form or WhatsApp link.</p>
+</section>
+
+<!-- TERMS & CONDITIONS -->
+<section id="terms" class="page-section">
+  <h2>📄 Terms & Conditions</h2>
+  <p>By using this site, you agree to our terms of service and privacy policy.</p>
+</section>
+<!-- ADMIN CONTACT FORM -->
+<section id="admin-contact" class="page-section">
+  <h2>📬 Contact Site Admin</h2>
+  <form method="POST" action="/admin-message">
+    <label>Subject: <input type="text" name="subject" required></label><br>
+    <label>Message: <textarea name="message" required></textarea></label><br>
+    <button type="submit">Send to Admin</button>
+  </form>
+</section>
+
+<!-- NOTIFICATIONS -->
+<section id="notifications" class="page-section">
+  <h2>🔔 Notifications</h2>
+  {% if notifications %}
+    <ul>
+      {% for note in notifications %}
+        <li>{{ note.date }} — {{ note.message }}</li>
+      {% endfor %}
+    </ul>
+  {% else %}
+    <p>No notifications yet.</p>
+  {% endif %}
+</section>
+
+<!-- LANGUAGE & CURRENCY SELECTORS -->
+<section id="preferences" class="page-section">
+  <h2>🌍 Preferences</h2>
+  <form method="POST" action="/set-preferences">
+    <label>Language:
+      <select name="language">
+        <option value="en">English</option>
+        <option value="sw">Swahili</option>
+      </select>
+    </label><br>
+    <label>Currency:
+      <select name="currency">
+        <option value="KES">KES - Kenyan Shilling</option>
+        <option value="USD">USD - US Dollar</option>
+      </select>
+    </label><br>
+    <button type="submit">Save Preferences</button>
+  </form>
+</section>
+
+<!-- SAVED ADDRESSES -->
+<section id="saved-addresses" class="page-section">
+  <h2>📍 Saved Delivery Addresses</h2>
+  {% if addresses %}
+    <ul>
+      {% for addr in addresses %}
+        <li>{{ addr.details }} 
+          <form method="POST" action="/delete-address" style="display:inline;">
+            <input type="hidden" name="address_id" value="{{ addr.id }}">
+            <button type="submit">Delete</button>
+          </form>
+        </li>
+      {% endfor %}
+    </ul>
+  {% else %}
+    <p>No saved addresses yet.</p>
+  {% endif %}
+</section>
+
+<!-- UNSUBSCRIBE -->
+<section id="unsubscribe" class="page-section">
+  <h2>🚫 Unsubscribe from Newsletter</h2>
+  <form method="POST" action="/unsubscribe">
+    <label>Email: <input type="email" name="email" required></label>
+    <button type="submit">Unsubscribe</button>
+  </form>
+</section>
+<!-- SEARCH BAR -->
+<section id="search" class="page-section">
+  <h2>🔍 Search Products</h2>
+  <form method="GET" action="/search">
+    <label>Keyword: <input type="text" name="q" required></label>
+    <button type="submit">Search</button>
+  </form>
+</section>
+
+<!-- FEEDBACK FORM -->
+<section id="feedback" class="page-section">
+  <h2>💬 Give Us Feedback</h2>
+  <form method="POST" action="/feedback">
+    <label>What did you like or dislike?</label><br>
+    <textarea name="message" required></textarea><br>
+    <button type="submit">Send Feedback</button>
+  </form>
+</section>
+
+<!-- DARK MODE TOGGLE (PLACEHOLDER) -->
+<section id="theme-toggle" class="page-section">
+  <h2>🌓 Theme Preference</h2>
+  <p>This feature will let you switch between light and dark mode in the future.</p>
+  <label><input type="checkbox" name="dark_mode" disabled> Dark Mode (Coming Soon)</label>
+</section>
+
+<!-- APP VERSION -->
+<section id="version" class="page-section">
+  <h2>⚙️ App Info</h2>
+  <p>Vikkie's Online Shop — Version 1.0.0</p>
+  <p>Last updated: July 2025</p>
+</section>
+
+<!-- FOOTER -->
+<footer class="page-section">
+  <p>&copy; 2025 Vikkie’s Online Shop — Trusted by Shoppers Everywhere</p>
+</footer>
+
+<!-- Scroll to Top Button -->
+<button id="scrollTopBtn" onclick="window.scrollTo({ top: 0, behavior: 'smooth' });">⬆</button>
+</body>
+</html>

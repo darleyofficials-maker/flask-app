@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Admin Panel - Vikkie’s Online Shop</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='HOMEPAGE.css') }}">
+</head>
+<body>
+
+  <!-- Header + Stats -->
+  <header class="page-section">
+    <h1>🔧 Admin Dashboard</h1>
+    <nav>
+      <ul class="nav-links">
+        <li><a href="/">🏠 Back to Homepage</a></li>
+        <li><a href="/logout">🚪 Logout</a></li>
+      </ul>
+    </nav>
+    <div style="margin-top: 20px;">
+      <p><strong>Total Products:</strong> {{ total_products }}</p>
+      <p><strong>Total Orders:</strong> {{ total_orders }}</p>
+      <p><strong>Total Messages:</strong> {{ total_messages }}</p>
+    </div>
+  </header>
+
+  <!-- Orders -->
+  <section class="page-section" id="orders">
+    <h2>📬 Orders</h2>
+    <table>
+      <tr>
+        <th>ID</th><th>User</th><th>Product</th><th>Qty</th>
+        <th>Total</th><th>Address</th><th>Phone</th><th>Status</th>
+      </tr>
+      {% for o in orders %}
+      <tr>
+        <td>{{ o[0] }}</td>
+        <td>{{ o[1] }}</td>
+        <td>{{ o[2] }}</td>
+        <td>{{ o[3] }}</td>
+        <td>{{ o[4] }}</td>
+        <td>{{ o[5] }}</td>
+        <td>{{ o[6] }}</td>
+        <td>{{ o[7] }}</td>
+      </tr>
+      {% endfor %}
+    </table>
+  </section>
+
+  <!-- Users -->
+  <section class="page-section" id="users">
+    <h2>👥 Registered Users</h2>
+    <table>
+      <tr><th>ID</th><th>Name</th><th>Email</th><th>Phone</th><th>Points</th><th>Delete</th></tr>
+      {% for u in users %}
+      <tr>
+        <td>{{ u[0] }}</td>
+        <td>{{ u[1] }}</td>
+        <td>{{ u[2] }}</td>
+        <td>{{ u[3] }}</td>
+        <td>{{ u[4] }}</td>
+        <td>
+          <form method="POST" action="/delete-user">
+            <input type="hidden" name="user_id" value="{{ u[0] }}">
+            <button type="submit" style="color: red;">Delete</button>
+          </form>
+        </td>
+      </tr>
+      {% endfor %}
+    </table>
+  </section>
+
+  <!-- Product List -->
+  <section class="page-section" id="products">
+    <h2>📦 Product List</h2>
+
+    <!-- Add Product -->
+    <form method="POST" action="/add-product">
+      <h3>Add New Product</h3>
+      <input name="name" placeholder="Name" required>
+      <input name="price" type="number" placeholder="Price" required>
+      <input name="category" placeholder="Category" required>
+      <input name="flash_end" type="datetime-local" required>
+      <button type="submit">➕ Add Product</button>
+    </form>
+
+    <table>
+      <tr><th>ID</th><th>Name</th><th>Price</th><th>Category</th><th>Flash End</th><th>Actions</th></tr>
+      {% for p in products %}
+      <tr>
+        <td>{{ p['id'] }}</td>
+        <td>{{ p['name'] }}</td>
+        <td>{{ p['price'] }}</td>
+        <td>{{ p['category'] }}</td>
+        <td>{{ p['flash_end'] }}</td>
+        <td>
+          <!-- Delete -->
+          <form method="POST" action="/delete-product" style="display:inline;">
+            <input type="hidden" name="product_id" value="{{ p['id'] }}">
+            <button type="submit">❌</button>
+          </form>
+
+          <!-- Edit -->
+          <form method="POST" action="/edit-product" style="display:inline;">
+            <input type="hidden" name="product_id" value="{{ p['id'] }}">
+            <input name="name" value="{{ p['name'] }}" required>
+            <input name="price" type="number" value="{{ p['price'] }}" required>
+            <input name="category" value="{{ p['category'] }}" required>
+            <input name="flash_end" type="datetime-local" value="{{ p['flash_end'] }}" required>
+            <button type="submit">✏️</button>
+          </form>
+        </td>
+      </tr>
+      {% endfor %}
+    </table>
+  </section>
+
+  <!-- Reviews -->
+  <section class="page-section" id="reviews">
+    <h2>📝 Product Reviews</h2>
+    <table>
+      <tr><th>User</th><th>Product</th><th>Rating</th><th>Comment</th></tr>
+      {% for r in reviews %}
+      <tr>
+        <td>{{ r[0] }}</td>
+        <td>{{ r[1] }}</td>
+        <td>{{ r[2] }} ⭐</td>
+        <td>{{ r[3] }}</td>
+      </tr>
+      {% endfor %}
+    </table>
+  </section>
+
+  <!-- Footer -->
+  <footer class="page-section">
+    <p>&copy; 2025 Vikkie’s Online Shop — Admin Panel</p>
+  </footer>
+
+</body>
+</html>
